@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.RedCrossMemberGroupMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.RedCrossMemberGroup">
+        <id column="member_id" property="memberId" />
+    <result column="create_by" property="createBy" />
+    <result column="update_by" property="updateBy" />
+    <result column="del_flag" property="delFlag" />
+        <result column="unit_property" property="unitProperty" />
+        <result column="legal_representative" property="legalRepresentative" />
+        <result column="unit_number" property="unitNumber" />
+        <result column="conact_person" property="conactPerson" />
+        <result column="permanent_area" property="permanentArea" />
+        <result column="post_code" property="postCode" />
+        <result column="conact_phone" property="conactPhone" />
+        <result column="mail" property="mail" />
+        <result column="address" property="address" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_by,
+        update_by,
+        del_flag,
+        member_id, unit_property, legal_representative, unit_number, conact_person, permanent_area, post_code, conact_phone, mail, address, create_time, update_time
+    </sql>
+    <select id="listRedCrossMemberGroup" resultType="com.xw.project.vo.RedCrossMemberAdultVo">
+        SELECT
+            member_code AS memberCode,
+            org.full_name AS orgName,
+            member_name AS memberName,
+            legal_representative AS legalRepresentative,
+            contact_phone AS contactPhone
+        FROM
+            red_cross_member
+            INNER JOIN red_cross_member_group ON red_cross_member.member_code = red_cross_member_group.member_id
+            LEFT JOIN sys_organize org ON red_cross_member.org_id = org.id
+        <where>
+            red_cross_member.del_flag = '0'
+            AND red_cross_member.member_type = '3'
+            AND red_cross_member.apply_status = '01'
+            <if test="redCrossMemberDto.memberName != null and redCrossMemberDto.memberName != ''">
+                AND INSTR(red_cross_member.member_name,#{redCrossMemberDto.memberName})>0
+            </if>
+            <if test="redCrossMemberDto.orgId !=null and redCrossMemberDto.orgId !='' ">
+                AND red_cross_member.org_id = #{redCrossMemberDto.orgId}
+            </if>
+        </where>
+        ORDER BY
+             red_cross_member.update_date DESC
+    </select>
+    <select id="getCrossMemberGroup" resultType="com.xw.project.vo.RedCrossMemberGroupVo">
+        SELECT
+            a.id AS id,
+            org_id AS orgId,
+            member_type AS memberType,
+            member_name AS memberName,
+            member_code AS memberCode,
+            unit_property AS unitProperty,
+            legal_representative AS legalRepresentative,
+            unit_number AS unitNumber,
+            contact_person AS contactPerson,
+            contact_phone AS contactPhone ,
+            permanent_area AS permanentArea,
+            post_code AS postCode,
+            address,
+            mail AS mail
+        FROM
+            red_cross_member a
+            INNER JOIN red_cross_member_group b ON a.member_code = b.member_id
+        WHERE
+            a.del_flag = '0'
+            AND member_type = '3'
+            AND apply_status = '01'
+            AND a.member_code =#{memberCode}
+    </select>
+
+</mapper>

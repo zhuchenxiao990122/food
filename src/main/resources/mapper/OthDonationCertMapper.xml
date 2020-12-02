@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.OthDonationCertMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.OthDonationCert">
+        <id column="id" property="id"/>
+        <result column="donation_date" property="donationDate"/>
+        <result column="donor" property="donor"/>
+        <result column="donation_amount" property="donationAmount"/>
+        <result column="donation_project" property="donationProject"/>
+        <result column="remarks" property="remarks"/>
+        <result column="cert_code" property="certCode"/>
+        <result column="apply_time" property="applyTime"/>
+        <result column="build_type" property="buildType"/>
+        <result column="sign" property="sign"/>
+    </resultMap>
+
+    <select id="getMaxCode" parameterType="string" resultType="int">
+        SELECT
+            count(id)
+        FROM
+            oth_donation_cert
+        WHERE
+            donation_date = #{donationDate}
+    </select>
+
+    <select id="getDonationCertList" parameterType="string" resultType="com.xw.project.vo.OthDonationCertVo">
+        SELECT
+        a.id,
+        a.donation_date,
+        a.donor,
+        a.remarks,
+        a.cert_code,
+        a.apply_time,
+        a.build_type,
+        a.sign,
+        a.donation_project,
+        a.donation_amount,
+        IF (
+        a.amount IS NULL,
+        a.donation_amount,
+        a.amount
+        ) AS amount,
+        DATE_FORMAT(
+        a.apply_time,
+        '%Y-%m-%d %H:%i:%s'
+        ) AS registerTime
+        FROM
+        oth_donation_cert a
+        WHERE
+        1=1
+        <if test="startDate != null and startDate !=''">
+            and Date (a.apply_time) &gt;= #{startDate}
+        </if>
+        <if test="buildType != null and buildType !=''">
+            and a.build_type=#{buildType}
+        </if>
+        <if test="endDate != null and endDate !=''">
+            and Date (a.apply_time) &lt;= #{endDate}
+        </if>
+        <if test="searchCriteria != null and searchCriteria !=''">
+            and (a.cert_code like CONCAT('%','${searchCriteria}','%' ) ||  a.donor like
+            CONCAT('%','${searchCriteria}','%' ))
+        </if>
+        ORDER BY a.apply_time desc
+    </select>
+
+    <insert id="batchInsert" parameterType="list">
+        insert into crew_state
+        (state_id,staff_id,org_rank,
+        post_id,start_date,end_date,
+        crew_state,create_user,update_user,
+        is_del,update_time)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            ( #{ item.stateId, jdbcType=CHAR},#{ item.staffId, jdbcType=VARCHAR},#{ item.orgRank, jdbcType=VARCHAR},
+            #{ item.postId, jdbcType=VARCHAR},#{ item.startDate, jdbcType=DATE},#{ item.endDate, jdbcType=DATE},
+            #{ item.crewState, jdbcType=CHAR},#{ item.createUser, jdbcType=CHAR},#{ item.updateUser, jdbcType=CHAR},
+            #{ item.isDel, jdbcType=CHAR},#{ item.updateTime, jdbcType=TIMESTAMP})
+        </foreach>
+    </insert>
+</mapper>

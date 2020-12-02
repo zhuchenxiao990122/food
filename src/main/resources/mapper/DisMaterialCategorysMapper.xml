@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.DisMaterialCategorysMapper">
+
+    <select id="pageListCategory" resultType="com.xw.project.vo.DisMaterialCategorysVo">
+        SELECT
+        a.id,
+        a.name,
+        a.code,
+        a.parent_id,
+        b.NAME AS parentName,
+        a.parent_ids,
+        a.sort,
+        a.remarks
+        FROM
+        dis_material_categorys a
+        LEFT JOIN dis_material_categorys b ON (a.parent_id = b.id and a.id != '0' and a.parent_id != '0')
+        <where>
+            <if test="category != '' and category != null">
+                and a.name like concat('%',#{category},'%')
+            </if>
+            <if test="code != '' and code != null">
+                and a.code like concat('%',#{code},'%')
+            </if>
+            <if test="true">
+                and a.del_flag = '0'
+            </if>
+        </where>
+    </select>
+    <select id="getParentIdsByParent" resultType="string">
+        SELECT
+            parent_ids AS parentIds
+        FROM
+            dis_material_categorys
+        WHERE
+            id = #{parentId}
+    </select>
+    <select id="getCategoryByIds" resultType="com.xw.project.vo.DisMaterialCategorysVo">
+        SELECT
+        a.id,
+        a.name,
+        a.code,
+        a.parent_id,
+        b.NAME AS parentName,
+        a.parent_ids,
+        a.sort,
+        a.remarks
+        FROM
+        dis_material_categorys a
+        LEFT JOIN dis_material_categorys b ON (a.parent_id = b.id and a.id != '0' and a.parent_id != '0')
+        <where>
+            <if test="true">
+                and a.id in
+                <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="true">
+                and a.del_flag = '0'
+            </if>
+        </where>
+    </select>
+
+    <insert id="addCategory" parameterType="com.xw.project.entity.DisMaterialCategorys">
+        INSERT INTO dis_material_categorys (
+            id,
+            name,
+            code,
+            remarks,
+            parent_id,
+            parent_ids
+        )
+        VALUES
+            (#{category.id},#{category.name},#{category.code},#{category.remarks},#{category.parentId},#{category.parentIds})
+    </insert>
+
+    <delete id="deleteMaterialCategoryById" parameterType="java.lang.String">
+        UPDATE
+            dis_material_categorys
+        SET
+            del_flag = "1"
+        WHERE
+            id = #{id}
+    </delete>
+
+    <update id="updateCategory" parameterType="com.xw.project.entity.DisMaterialCategorys">
+        UPDATE
+            dis_material_categorys
+        SET
+            NAME = #{category.name}, remarks = #{category.remarks}
+        WHERE
+            id = #{category.id}
+    </update>
+
+    <select id="selectCategoryList" resultType="com.xw.project.vo.DisMaterialCategorysVo">
+        SELECT
+            a.id,
+            a.id AS categoryId,
+            a.name,
+            a.code,
+            a.parent_id,
+            a.parent_ids,
+            a.sort,
+            a.remarks
+        FROM
+            dis_material_categorys a
+        WHERE a.del_flag = '0'
+    </select>
+</mapper>

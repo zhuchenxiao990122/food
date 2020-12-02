@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.OrgRedCrossMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.OrgRedCross">
+        <id column="org_id" property="orgId"/>
+        <result column="org_found_date" property="orgFoundDate"/>
+        <result column="party_exist" property="partyExist"/>
+        <result column="party_found_date" property="partyFoundDate"/>
+        <result column="party_name" property="partyName"/>
+        <result column="permanent_staff_total" property="permanentStaffTotal"/>
+        <result column="nonpermanent_staff_total" property="nonpermanentStaffTotal"/>
+        <result column="leader_total" property="leaderTotal"/>
+        <result column="middle_leader_total" property="middleLeaderTotal"/>
+        <result column="refer_servant_total" property="referServantTotal"/>
+        <result column="nonrefer_servant_total" property="nonreferServantTotal"/>
+        <result column="council_member_total" property="councilMemberTotal"/>
+        <result column="supervisors_found_date" property="supervisorsFoundDate"/>
+        <result column="office_phone" property="officePhone"/>
+        <result column="fax" property="fax"/>
+        <result column="post_code" property="postCode"/>
+        <result column="address" property="address"/>
+        <result column="office_area" property="officeArea"/>
+        <result column="office_property_right" property="officePropertyRight"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+
+    <select id="organizeDetailInfo" resultType="com.xw.project.entity.OrgRedCross">
+        SELECT
+            sys_dict.NAME AS institution_level_name,
+            a.org_found_date,
+            a.institution_level,
+            a.party_exist,
+            party_found_date,
+            party_name,
+            permanent_staff_total,
+            nonpermanent_staff_total,
+            leader_total,
+            middle_leader_total,
+            refer_servant_total,
+            nonrefer_servant_total,
+            council_member_total,
+            supervisors_found_date,
+            office_phone,
+            fax,
+            post_code,
+            address,
+            office_area,
+            office_property_right
+        FROM
+            org_red_cross a
+            LEFT JOIN sys_dict ON sys_dict.id = a.institution_level
+        WHERE
+	        org_id = #{treeId}
+
+    </select>
+
+
+</mapper>

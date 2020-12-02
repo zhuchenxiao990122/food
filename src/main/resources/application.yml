@@ -1,0 +1,42 @@
+server:
+  port: 8096
+  servlet:
+    context-path: /zdrcsvc
+
+logging:
+  config: classpath:logback-spring.xml
+spring:
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      maxFileSize: 10MB
+      maxRequestSize: 20MB
+async:
+  executor:
+    thread:
+      core_pool_size: 10
+      max_pool_size: 30
+      queue_capacity: 8
+
+auth:
+  tokenValiditySeconds: 1200  #token存储到redis的过期时间
+  clientId: XcWebApp
+  clientSecret: XcWebApp
+  cookieDomain: localhost
+  cookieMaxAge: -1
+encrypt:
+  key-store:
+    location: classpath:qz.keystore
+    secret: qzkeystore
+    alias: qzkey
+    password: qzsjgx
+
+
+#是否开启activiti用户同步
+activiti:
+  actSync: true
+app:
+  #需要修改默认的Web拦截设置时使用
+  web-security:
+    ignoring-matchers: "/donationIntention/saveFiles,/donationIntention/getImage,/donationIntention/getPdf,/othDonationCert/downLoadFileByCheckBox, /othDonationCert/downLoadFileZip, /othBillApply/billApplyExport, /othDonationCert/generateSignature, /othDonationCert/downLoadPdf,/othDonationCert/getDonationInfoList, /othBillApply/addBillApply"

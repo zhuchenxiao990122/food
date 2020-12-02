@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.DisStockInDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.DisStockInDetail">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="notice_id" property="noticeId"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="material_id" property="materialId"/>
+        <result column="amount" property="amount"/>
+        <result column="total" property="total"/>
+        <result column="remarks" property="remarks"/>
+        <result column="update_date" property="updateDate"/>
+        <result column="create_date" property="createDate"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="create_by" property="createBy"/>
+        <result column="del_flag" property="delFlag"/>
+    </resultMap>
+
+    <select id="getWaitInListDetails" resultType="com.xw.project.vo.DisDonatedMaterialDetailVo" parameterType="string">
+        SELECT
+            a.notice_id AS id,
+            a.material_id,
+            a.amount,
+            a.in_amount,
+            a.total,
+            b.unit,
+            b.unit_price,
+            b.model,
+            b.material_name,
+            e.`name`    AS contact_name,
+            f.`name`    AS material_category_name
+        FROM
+            dis_reserve_notice_detail a
+                LEFT JOIN dis_donated_materials_detail b ON a.material_id = b.id
+                LEFT JOIN dis_donated_materials c ON b.donated_id = c.id
+                LEFT JOIN dis_contact_detail d ON d.id = c.contact_item_id
+                LEFT JOIN dis_contact e ON e.id = d.contact_id
+                LEFT JOIN dis_material_categorys f ON f.id = b.category_id
+        WHERE
+            a.notice_id = #{noticeId}
+          AND
+            a.del_flag = '0'
+    </select>
+</mapper>

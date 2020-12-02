@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.RedCrossMemberRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.RedCrossMemberRecord">
+        <result column="id" property="id"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_date" property="createDate"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_date" property="updateDate"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="org_id" property="orgId"/>
+        <result column="member_type" property="memberType"/>
+        <result column="member_name" property="memberName"/>
+        <result column="into_org" property="intoOrg"/>
+        <result column="member_code" property="memberCode"/>
+        <result column="apply_date" property="applyDate"/>
+        <result column="approve_date" property="approveDate"/>
+        <result column="apply_type" property="applyType"/>
+        <result column="reason" property="reason"/>
+        <result column="remarks" property="remarks"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        create_by,
+        create_date,
+        update_by,
+        update_date,
+        del_flag,
+        org_id, member_type, member_name, into_org, member_code, apply_date, approve_date, apply_type, reason, remarks
+    </sql>
+
+    <select id="listAdultMember" resultType="com.xw.project.vo.RedCrossMemberVo">
+        SELECT
+        a.id AS id,
+        a.apply_date,
+        IFNULL( a.apply_type, "" ) AS applyType,
+        IFNULL(a.approval_status,"") AS approvalStatus,
+        a.member_name,
+        full_name AS orgName,
+        d.sex,
+        d.nation,
+        education_degree,
+        contact_phone,
+        work_unit,
+        address,
+        a.member_code
+        FROM
+        red_cross_member_record a
+        INNER JOIN sys_organize b ON a.org_id = b.id
+        INNER JOIN red_cross_member_adult d ON a.member_code = d.member_id
+        <where>
+            a.del_flag = '0'
+            AND a.apply_type = #{memberDto.applyType}
+            <if test="memberDto.memberName != '' and memberDto.memberName != null">
+                AND INSTR(a.member_Name,#{memberDto.memberName})>0
+            </if>
+            <if test="memberDto.orgId != '' and memberDto.orgId != null">
+                AND a.org_id = #{memberDto.orgId}
+            </if>
+        </where>
+        ORDER BY a.apply_type ASC ,a.update_date DESC
+    </select>
+
+    <select id="listTeenagersMember" resultType="com.xw.project.vo.RedCrossMemberVo">
+        SELECT
+        a.id AS id,
+        apply_date,
+        IFNULL( a.apply_type, "" ) AS applyType,
+        IFNULL(a.approval_status,"") AS approvalStatus,
+        member_name,
+        member_type,
+        b.full_name AS orgName,
+        school_name,
+        faculty,
+        class_name,
+        a.member_code
+        FROM
+        red_cross_member_record a
+        INNER JOIN sys_organize b ON a.org_id = b.id
+        INNER JOIN red_cross_member_teenagers d ON a.member_code = d.member_id
+        <where>
+            a.del_flag = '0'
+            AND a.apply_type LIKE #{memberDto.applyType}
+            <if test="memberDto.memberName != '' and memberDto.memberName != null">
+                AND INSTR(a.member_Name,#{memberDto.memberName})>0
+            </if>
+            <if test="memberDto.orgId != '' and memberDto.orgId != null">
+                AND a.org_id = #{memberDto.orgId}
+            </if>
+        </where>
+        ORDER BY a.apply_type ASC ,a.update_date DESC
+    </select>
+
+    <select id="listGroupMember" resultType="com.xw.project.vo.RedCrossMemberVo">
+        SELECT
+        a.id AS id,
+        apply_date,
+        IFNULL( a.apply_type, "" ) AS applyType,
+        IFNULL(a.approval_status,"") AS approvalStatus,
+        member_name,
+        member_type,
+        b.full_name AS orgName,
+        permanent_area,
+        address,
+        post_code,
+        a.member_code
+        FROM
+        red_cross_member_record a
+        INNER JOIN sys_organize b ON a.org_id = b.id
+        INNER JOIN red_cross_member_group d ON a.member_code = d.member_id
+        <where>
+            a.del_flag = '0'
+            AND a.apply_type = #{memberDto.applyType}
+            <if test="memberDto.memberName != '' and memberDto.memberName != null">
+                AND INSTR(a.member_Name,#{memberDto.memberName})>0
+            </if>
+            <if test="memberDto.orgId != '' and memberDto.orgId != null">
+                AND a.org_id = #{memberDto.orgId}
+            </if>
+        </where>
+        ORDER BY a.apply_type ASC ,a.update_date DESC
+    </select>
+
+    <select id="getAdultMember" resultType="com.xw.project.vo.RedCrossMemberAdultVo">
+        SELECT
+            a.id AS id,
+            member_code,
+            org_id,
+            into_org,
+            member_name,
+            member_type,
+            sex,
+            education_degree,
+            birth_date,
+            nation,
+            profession,
+            contact_phone,
+            id_card,
+            address,
+            apply_date,
+            work_unit,
+            a.reason
+        FROM
+            red_cross_member_record a
+            INNER JOIN red_cross_member_adult b ON a.member_code = b.member_id
+        WHERE
+            a.del_flag = '0'
+            AND a.id = #{id}
+    </select>
+
+    <select id="getTeenagersMember" resultType="com.xw.project.vo.RedCrossMemberTeenagersVo">
+        SELECT
+            a.id AS id,
+            org_id,
+            into_org,
+            member_code,
+            member_name,
+            member_type,
+            IFNULL( a.apply_type, "" ) AS applyType,
+            IFNULL(a.approval_status,"") AS approvalStatus,
+            apply_date,
+            school_name,
+            faculty,
+            class_name,
+             a.reason
+        FROM
+            red_cross_member_record a
+            INNER JOIN red_cross_member_teenagers b ON a.member_code = b.member_id
+        WHERE
+            a.del_flag = '0'
+            AND a.id = #{id}
+    </select>
+
+    <select id="getGroupMember" resultType="com.xw.project.vo.RedCrossMemberGroupVo">
+        SELECT
+            a.id AS id,
+            org_id AS orgId,
+            into_org,
+            member_type AS memberType,
+            member_name AS memberName,
+            member_code AS memberCode,
+            IFNULL( a.apply_type, "" ) AS applyType,
+            IFNULL(a.approval_status,"") AS approvalStatus,
+            apply_date AS applyDate,
+            unit_property AS unitProperty,
+            legal_representative AS legalRepresentative,
+            unit_number AS unitNumber,
+            contact_person AS contactPerson,
+            contact_phone AS contactPhone,
+            permanent_area AS permanentArea,
+            post_code AS postCode,
+            address,
+            mail AS mail,
+            a.reason
+        FROM
+            red_cross_member_record a
+            INNER JOIN red_cross_member_group b ON a.member_code = b.member_id
+        WHERE
+            a.del_flag = '0'
+            AND a.id = #{id}
+    </select>
+
+    <select id="memberPendingCount" resultType="java.lang.Integer">
+        SELECT
+            count( id )
+        FROM
+            red_cross_member_record
+        WHERE
+            del_flag = '0'
+            AND member_type = #{memberType}
+            AND apply_type = #{applyType}
+            AND approval_status = '00'
+    </select>
+
+
+</mapper>

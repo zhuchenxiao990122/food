@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.AdvRcParkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.AdvRcPark">
+    <result column="id" property="id" />
+    <result column="update_date" property="updateDate" />
+    <result column="create_date" property="createDate" />
+    <result column="update_by" property="updateBy" />
+    <result column="create_by" property="createBy" />
+    <result column="del_flag" property="delFlag" />
+    <result column="remarks" property="remarks" />
+        <result column="install_date" property="installDate" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ar.id,
+        ar.update_date,
+        ar.create_date,
+        ar.update_by,
+        ar.create_by,
+        ar.del_flag,
+        ar.remarks,
+        ar.install_date
+    </sql>
+
+    <!-- 通用多表查询结果列 -->
+    <sql id="Base_Column_List_Left">
+        ar.id,
+        ar.install_date as installDate,
+        ar.update_date as updateDate,
+        ar.create_date as createDate,
+        ar.update_by as updateBy,
+        ar.create_by as createBy,
+        ar.del_flag as delFlag,
+        ar.remarks as remarks,
+        tp.address as address,
+        tp.position_lon as positionLon,
+        tp.position_lat as position_Lat,
+        tp.state as state,
+        tp.area_id areaId,
+        tp.org_id as orgId,
+        tp.ref_type as refType,
+        sa.full_name as areaName,
+        so.name as orgName,
+        so.area_id as areaCode,
+        sd.name as stateName
+    </sql>
+
+    <!--通用左表联结-->
+    <sql id="Left_Join_Sql">
+        LEFT JOIN target_position tp ON ar.id = tp.ref_id
+        LEFT JOIN sys_area sa ON tp.area_id = sa.id
+        LEFT JOIN sys_dict sd ON tp.state = sd.id
+        LEFT JOIN sys_organize so ON tp.org_id =so.id
+    </sql>
+
+
+    <!--获取省市区-->
+    <select id="listTreeArea" resultType="com.xw.project.vo.AdvRcParkVo">
+        SELECT id,
+            parent_id as parentId,
+            name as areaName,
+            code as areaId,
+            del_flag as delFlag
+        FROM
+            sys_area
+        WHERE
+            del_flag='0' AND id != '2'
+    </select>
+
+    <!--获取所有地址-->
+    <select id="listAllAddress" resultType="com.xw.project.vo.AdvRcParkVo">
+        SELECT
+            <include refid="Base_Column_List_Left"/>
+        FROM
+            adv_rc_park ar <include refid="Left_Join_Sql"/>
+        ORDER BY
+            ar.create_date DESC
+    </select>
+
+
+    <!--通过ID查询-->
+    <select id="getByIdVo" resultType="com.xw.project.vo.AdvRcParkVo">
+        SELECT
+            <include refid="Base_Column_List_Left"/>
+        FROM
+            adv_rc_park ar<include refid="Left_Join_Sql"/>
+        WHERE
+             ar.id =#{id}
+    </select>
+
+    <!--分页查询-->
+    <select id="selectPageVO" resultType="com.xw.project.vo.AdvRcParkVo">
+        SELECT
+        <include refid="Base_Column_List_Left"/>
+        FROM
+        adv_rc_park ar
+        <include refid="Left_Join_Sql"/>
+        <trim prefix="where" prefixOverrides="and">
+            <if test="advRcParkDto.address != null and advRcParkDto.address != ''">
+                tp.address like concat('%', #{advRcParkDto.address},'%')
+            </if>
+            <if test="advRcParkDto.stateName != null and advRcParkDto.stateName != ''">
+                sd.name like concat('%', #{advRcParkDto.stateName},'%')
+            </if>
+            AND ar.del_flag=0
+            ORDER BY ar.create_date desc
+        </trim>
+    </select>
+
+
+</mapper>

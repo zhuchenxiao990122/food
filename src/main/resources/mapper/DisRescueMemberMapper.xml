@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.DisRescueMemberMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.DisRescueMember">
+        <result column="id" property="id"/>
+        <result column="update_date" property="updateDate"/>
+        <result column="create_date" property="createDate"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="create_by" property="createBy"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="id_card" property="idCard"/>
+        <result column="member_name" property="memberName"/>
+        <result column="sex" property="sex"/>
+        <result column="birthday" property="birthday"/>
+        <result column="duty" property="duty"/>
+        <result column="phone" property="phone"/>
+        <result column="join_date" property="joinDate"/>
+        <result column="address" property="address"/>
+        <result column="remarks" property="remarks"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        update_date,
+        create_date,
+        update_by,
+        create_by,
+        del_flag,
+        team_id, id_card, member_name, sex, birthday, duty, phone, join_date, address, remarks
+    </sql>
+    <!--    新增 -->
+    <insert id="addMember">
+INSERT INTO dis_rescue_member (id,
+	member_name,	sex,	birthday,	duty,	phone,	id_card,
+	address,	join_date,	remarks
+)
+VALUE
+	(#{id},#{memberData.memberName},#{memberData.sex},#{memberData.birthday},#{memberData.duty},#{memberData.phone},#{memberData.idCard},#{memberData.address},CURDATE(),#{memberData.remarks})
+    </insert>
+    <insert id="addMemberTeam">
+        insert into dis_rescue_team_member(id, team_id, member_id)
+        VALUE(#{uuid},#{teamId},#{memberId})
+    </insert>
+
+    <!--    修改-->
+    <update id="updateMember">
+        UPDATE dis_rescue_member
+        set member_name = #{memberData.memberName},
+        sex = #{memberData.sex},
+        duty = #{memberData.duty},
+        phone = #{memberData.phone},
+        address = #{memberData.address},
+        remarks = #{memberData.remarks},
+        id_card = #{memberData.idCard}
+        where id = #{memberData.id}
+    </update>
+    <update id="teamMemberAdd">
+        update dis_rescue_team
+        set member_total = member_total + 1
+        where id = #{teamId}
+    </update>
+    <update id="deleteMember">
+       UPDATE dis_rescue_member
+       set del_flag = 1
+       where id= #{id}
+    </update>
+    <update id="deleteTeamTotal">
+        UPDATE dis_rescue_team
+        SET member_total = member_total - 1
+        WHERE	id = #{teamId}
+    </update>
+
+    <update id="deleteMemberTeam">
+        UPDATE dis_rescue_team_member
+        SET del_flag = 1
+        WHERE team_id = #{teamId} and member_id = #{id}
+    </update>
+
+    <!--    查询-->
+    <select id="getParentId" resultType="java.lang.String" parameterType="java.lang.String">
+        select parent_id
+        from sys_organize
+        where id = #{orgId}
+    </select>
+    <select id="listMember" resultType="com.xw.project.vo.DisRescueMemberVo">
+        SELECT
+        a.id AS id,
+        a.birthday AS birthday,
+        a.duty AS duty,
+        a.phone AS phone,
+        a.join_date AS joinDate,
+        a.address AS address,
+        a.id_card as idCard,
+        a.remarks AS remarks,
+        d.value as teamType,
+        c.id as teamId,
+        c.org_id as orgId,
+        e. NAME as orgName,
+        d. NAME as teamTypeName,
+        c.team_name as teamName,
+        a.member_name AS memberName,
+        a.sex AS sex,
+        a.join_date AS joinDate
+        FROM
+        dis_rescue_member a
+        LEFT JOIN dis_rescue_team_member b ON (a.id = b.member_id)
+        LEFT JOIN dis_rescue_team c ON (b.team_id = c.id)
+        LEFT JOIN sys_dict d ON (c.team_type = d.`value` and d.type = "team_type")
+        LEFT JOIN sys_organize e ON (c.org_id = e.id)
+        <where>
+            <if test="parentId != '' and parentId != null">
+                and c.org_id in (select id from sys_organize where parent_id = #{parentId})
+            </if>
+            <if test="orgId != '' and orgId != null">
+                and c.org_id = #{orgId}
+            </if>
+            <if test="teamType != '' and teamType != null">
+                and c.team_type = #{teamType}
+            </if>
+            <if test="teamName != '' and teamName != null">
+                and c.team_name like concat('%',#{teamName},'%')
+            </if>
+            <if test="memberName != '' and memberName != null">
+                and a.member_name like concat('%',#{memberName},'%')
+            </if>
+            <if test="joinDate != '' and joinDate != null">
+                and a.join_date &gt;= #{joinDate[0]}
+                and a.join_date &lt;= #{joinDate[1]}
+            </if>
+            <if test="true">
+                and a.del_flag = 0
+            </if>
+        </where>
+        ORDER BY a.create_date DESC
+    </select>
+
+    <select id="listTeams" resultType="com.xw.project.entity.DisRescueTeam">
+        SELECT id, team_name as teamName
+        FROM dis_rescue_team
+        <where>
+            <if test="orgId != '' and orgId != null">
+                and org_id = #{orgId}
+            </if>
+            <if test="teamType != '' and teamType != null">
+                and team_type = #{teamType}
+            </if>
+        </where>
+    </select>
+</mapper>

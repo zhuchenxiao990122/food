@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.RedCrossMemberAdultMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.RedCrossMemberAdult">
+        <id column="member_id" property="memberId" />
+    <result column="create_by" property="createBy" />
+    <result column="update_by" property="updateBy" />
+    <result column="del_flag" property="delFlag" />
+        <result column="id_card" property="idCard" />
+        <result column="sex" property="sex" />
+        <result column="education_degree" property="educationDegree" />
+        <result column="birth_date" property="birthDate" />
+        <result column="nation" property="nation" />
+        <result column="profession" property="profession" />
+        <result column="contact_phone" property="contactPhone" />
+        <result column="work_unit" property="workUnit" />
+        <result column="address" property="address" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_by,
+        update_by,
+        del_flag,
+        member_id, id_card, sex, education_degree, birth_date, nation, profession, contact_phone, work_unit, address, create_time, update_time
+    </sql>
+
+
+    <select id="listRedCrossMemberAdult" resultType="com.xw.project.vo.RedCrossMemberAdultVo">
+        SELECT
+            member_code AS memberCode,
+            org.full_name AS orgName,
+            member_name AS memberName,
+            sex,
+            contact_phone AS contactPhone
+        FROM
+            red_cross_member
+            INNER JOIN red_cross_member_adult ON red_cross_member.member_code = red_cross_member_adult.member_id
+            LEFT JOIN sys_organize org ON red_cross_member.org_id = org.id
+        <where>
+            red_cross_member.del_flag = '0'
+            AND red_cross_member.apply_status = '01'
+            AND red_cross_member.member_type = '1'
+            <if test="redCrossMemberDto.memberName != null and redCrossMemberDto.memberName != ''">
+              AND INSTR(red_cross_member.member_name,#{redCrossMemberDto.memberName}) >0
+            </if>
+            <if test="redCrossMemberDto.orgId !=null and redCrossMemberDto.orgId !='' ">
+                AND red_cross_member.org_id = #{redCrossMemberDto.orgId}
+            </if>
+        </where>
+        ORDER BY
+             red_cross_member.update_date DESC
+    </select>
+
+    <select id="getCrossMemberAdult" resultType="com.xw.project.vo.RedCrossMemberVo">
+            SELECT
+                red_cross_member.id AS id,
+                member_code,
+                org_id,
+                member_name,
+                member_type,
+                sex,
+                education_degree,
+                birth_date,
+                nation,
+                profession,
+                contact_phone,
+                id_card,
+                address,
+                work_unit
+            FROM
+                red_cross_member,
+                red_cross_member_adult
+            WHERE
+                red_cross_member.member_code = red_cross_member_adult.member_id
+                AND red_cross_member.del_flag ='0'
+                AND red_cross_member.member_type = '1'
+                AND red_cross_member.member_code = #{memberCode}
+    </select>
+
+</mapper>

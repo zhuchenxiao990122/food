@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.DisMaterialWarehouseMapper">
+
+    <select id="pageListWarehouseInfo" resultType="com.xw.project.vo.DisMaterialWarehouseVo">
+        SELECT
+            a.id as warehouseId,
+            a.organize_id as organizeId,
+            b.name as organizeName,
+            a.warehouse_type as warehouseType,
+            c.name as warehouseTypeName,
+            a.code,
+            a.name,
+            a.area,
+            a.address,
+            a.establish_date as establishDate,
+            a.link_person as linkPerson,
+            a.phone,
+            a.remarks
+        FROM
+            dis_material_warehouse a
+            inner join sys_organize b on (a.organize_id = b.id)
+            inner join sys_dict c on (a.warehouse_type = c.id)
+        <where>
+            <if test="warehouse.organizeId != '' and warehouse.organizeId != null">
+                and a.organize_id = #{warehouse.organizeId}
+            </if>
+            <if test="warehouse.warehouseType != '' and warehouse.warehouseType != null">
+                and a.warehouse_type = #{warehouse.warehouseType}
+            </if>
+            <if test="warehouse.code != '' and warehouse.code != null">
+                and a.code like concat('%',#{warehouse.code},'%')
+            </if>
+            <if test="warehouse.name != '' and warehouse.name != null">
+                and a.name like concat('%',#{warehouse.name},'%')
+            </if>
+            <if test="warehouse.address != '' and warehouse.address != null">
+                and a.address like concat('%',#{warehouse.address},'%')
+            </if>
+            <if test="warehouse.linkPerson != '' and warehouse.linkPerson != null">
+                and a.link_person like concat('%',#{warehouse.linkPerson},'%')
+            </if>
+            <if test="warehouse.establishDate != '' and warehouse.establishDate != null">
+                and a.establish_date &gt;= #{warehouse.establishDate[0]}
+                and a.establish_date &lt;= #{warehouse.establishDate[1]}
+            </if>
+            <if test="true">
+                and a.del_flag = 0
+            </if>
+        </where>
+        ORDER BY a.create_date DESC
+    </select>
+
+    <select id="getAreaId" resultType="java.lang.String" parameterType="java.lang.String">
+        SELECT
+            area_id AS administrativeCode
+        FROM
+            sys_organize
+        WHERE
+            id = #{orgId}
+    </select>
+
+</mapper>

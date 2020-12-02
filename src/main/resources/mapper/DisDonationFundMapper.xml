@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.DisDonationFundMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.DisDonationFund">
+        <result column="id" property="id"/>
+        <result column="remarks" property="remarks"/>
+        <result column="update_date" property="updateDate"/>
+        <result column="create_date" property="createDate"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="create_by" property="createBy"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="donor" property="donor"/>
+        <result column="donor_type" property="donorType"/>
+        <result column="project_id" property="projectId"/>
+        <result column="anonymous" property="anonymous"/>
+        <result column="donation_time" property="donationTime"/>
+        <result column="pay_channel" property="payChannel"/>
+        <result column="pay_code" property="payCode"/>
+        <result column="amount" property="amount"/>
+        <result column="phone_number" property="phoneNumber"/>
+        <result column="email" property="email"/>
+        <result column="id_card" property="idCard"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        remarks,
+        update_date,
+        create_date,
+        update_by,
+        create_by,
+        del_flag,
+        donor, donor_type, project_id, anonymous, donation_time, pay_channel, pay_code, amount, phone_number, email, id_card
+    </sql>
+
+    <select id="selectPageByCondition" resultType="com.xw.project.vo.DisDonationFundVo">
+        SELECT
+        a.*, b.`name` AS donorTypeName,
+        c.`name` AS anonymousName,
+        d.`name` AS payChannelName,
+        e.`name` AS billApplyName,
+        f.`name` as projectName
+        FROM
+        dis_donation_fund a
+        LEFT JOIN sys_dict b ON a.donor_type = b.id
+        LEFT JOIN sys_dict c ON a.anonymous = c.id
+        LEFT JOIN sys_dict d ON a.pay_channel = d.id
+        LEFT JOIN sys_dict e ON a.bill_apply = e.id
+        LEFT JOIN dis_donation_project f ON f.id = a.project_id
+        WHERE
+        a.del_flag = '0'
+        <if test="disDonationFundDto.donor != null and disDonationFundDto.donor !=''">
+            AND a.donor like CONCAT('%','${disDonationFundDto.donor}','%' )
+        </if>
+        <if test="disDonationFundDto.projectId != null and disDonationFundDto.projectId !=''">
+            AND a.project_id = #{disDonationFundDto.projectId}
+        </if>
+        order by a.update_date DESC
+    </select>
+</mapper>

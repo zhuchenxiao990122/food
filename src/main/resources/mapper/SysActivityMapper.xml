@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.SysActivityMapper">
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.SysActivity">
+        <id column="id" property="Id"/>
+        <result column="update_date" property="updateDate" />
+        <result column="create_date" property="createDate" />
+        <result column="update_by" property="updateBy" />
+        <result column="create_by" property="createBy" />
+        <result column="del_flag" property="delFlag" />
+        <result column="activity_name" property="activityName"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="activity_type" property="activityType"/>
+        <result column="people_num" property="peopleNum"/>
+        <result column="remarks" property="remarks" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id,
+        update_date,
+        create_date,
+        update_by,
+        create_by,
+        del_flag,
+        activity_name,
+        start_date,
+        end_date,
+        activity_type,
+        people_num,
+        remarks
+    </sql>
+    <select id="search" resultType="com.xw.project.vo.SysActivityVo">
+        SELECT
+        sys_activity.id AS Id,
+        sys_activity.activity_name AS activityName,
+        sys_activity.start_date AS startDate,
+        sys_activity.end_date AS endDate,
+        sys_activity.activity_type AS activityType,
+        sys_activity.people_num AS peopleNum
+        FROM
+        sys_activity
+        <where>
+            sys_activity.del_flag = 0
+            <if test="sysActivityDto.Id != null and sysActivityDto.Id != ''">
+                AND sys_activity.id = #{sysActivityDto.Id}
+            </if>
+            <if test="sysActivityDto.activityName != null and sysActivityDto.activityName != ''">
+                AND sys_activity.activity_name LIKE CONCAT('%',#{sysActivityDto.activityName},'%')
+            </if>
+            <if test="sysActivityDto.activityType != null and sysActivityDto.activityType != ''">
+                AND sys_activity.activity_type = #{sysActivityDto.activityType}
+            </if>
+        </where>
+    </select>
+    <select id="list" resultType="com.xw.project.vo.SysActivityVo">
+        SELECT
+        sys_activity.id AS Id,
+        sys_activity.activity_name AS activityName,
+        sys_activity.start_date AS startDate,
+        sys_activity.end_date AS endDate,
+        sys_activity.activity_type AS activityType,
+        sys_activity.people_num AS peopleNum
+        FROM
+        sys_activity
+        <where>
+            sys_activity.del_flag = 0
+            <if test="activityName != null and activityName != ''">
+                AND sys_activity.activity_name=#{activityName}
+            </if>
+        </where>
+    </select>
+</mapper>

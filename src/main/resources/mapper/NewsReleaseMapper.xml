@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.NewsReleaseMapper">
+
+    <select id="selectNewsById" resultType="com.xw.project.vo.NewsReleaseVo">
+            SELECT
+                id AS fileId,
+                file_name AS fileName,
+                file_type AS fileType,
+                file_size AS fileSize,
+                file_path AS filePath
+            FROM
+                news_release_files
+            WHERE
+                id = #{id}
+    </select>
+
+    <select id="listFiles" resultType="com.xw.project.vo.NewsReleaseVo">
+            SELECT
+                id AS fileId,
+                file_name AS fileName,
+                file_type AS fileType,
+                file_size AS fileSize,
+                file_path AS filePath
+            FROM
+                sys_file_info
+    </select>
+
+    <!-- 新增文件 -->
+    <insert id="insert">
+        INSERT INTO sys_file_info (
+                    id,
+                    file_name,
+                    file_type,
+                    file_size,
+                    file_path,
+                    upload_time
+                )
+        VALUE(#{sysfileInfo.refId},#{sysfileInfo.fileName},#{sysfileInfo.fileType},#{sysfileInfo.fileSize},#{sysfileInfo.filePath},#{sysfileInfo.updateDate});
+    </insert>
+
+    <!-- 新增新闻内容 -->
+    <insert id="addNews">
+        INSERT INTO news_release (
+                    id,
+                    news_title,
+                    news_subtitle,
+                    news_brief,
+                    news_note,
+                    files_id
+                )
+        VALUE(#{id},#{newsRelease.newsTitle},#{newsRelease.newsSubTitle},#{newsRelease.newsBrief},#{newsRelease.newsNote},#{ids});
+    </insert>
+
+
+</mapper>

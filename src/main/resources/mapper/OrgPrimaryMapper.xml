@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.OrgPrimaryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.OrgPrimary">
+        <id column="org_id" property="orgId" />
+        <result column="org_category" property="orgCategory" />
+        <result column="org_found_date" property="orgFoundDate" />
+        <result column="president" property="president" />
+        <result column="vice_president" property="vicePresident" />
+        <result column="secretary_general" property="secretaryGeneral" />
+        <result column="membership_num" property="membershipNum" />
+        <result column="address" property="address" />
+        <result column="post_code" property="postCode" />
+        <result column="conact_person" property="conactPerson" />
+        <result column="office_phone" property="officePhone" />
+        <result column="fax" property="fax" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+    <select id="getOrganizePrimary" parameterType="string" resultType="com.xw.project.vo.OrganizePrimaryVo">
+        SELECT
+        a.full_name,
+        d.full_name AS parentName,
+        a.orgcoding,
+        a.parent_id,
+        b.org_id,
+        b.address,
+        b.fax,
+        b.membership_num,
+        b.office_phone,
+        b.org_category,
+        b.org_found_date,
+        b.post_code,
+        b.president,
+        b.conact_person,
+        b.secretary_general,
+        b.vice_president,
+        c.`name` AS orgCategoryName
+        FROM
+        sys_organize a
+        LEFT JOIN org_primary b ON a.id = b.org_id
+        LEFT JOIN sys_dict c ON c.id = b.org_category
+        LEFT JOIN sys_organize d ON a.parent_id = d.id
+        WHERE
+        a.del_flag = '0'
+        AND a.org_type = '2'
+        AND INSTR(a.parent_id,#{parentId}) >0
+            <if test="fullName != null and fullName !='' ">
+                AND INSTR(a.full_name,#{fullName})>0
+            </if>
+            <if test="orgCoding != null and orgCoding != '' ">
+                AND a.orgcoding = #{orgCoding}
+            </if>
+        ORDER BY c.sort
+    </select>
+
+    <select id="selectBigCoding" parameterType="string" resultType="string">
+        SELECT a.orgcoding
+
+        FROM sys_organize a
+
+        WHERE a.orgcoding LIKE CONCAT(#{join},'%')
+
+        Group By a.orgcoding DESC
+
+        LIMIT 0 ,1
+    </select>
+</mapper>

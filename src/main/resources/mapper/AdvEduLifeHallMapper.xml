@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.AdvEduLifeHallMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.AdvEduLifeHall">
+        <result column="id" property="id"/>
+        <result column="update_date" property="updateDate"/>
+        <result column="create_date" property="createDate"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="create_by" property="createBy"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="remarks" property="remarks"/>
+        <result column="install_date" property="installDate"/>
+        <result column="name" property="name"/>
+    </resultMap>
+
+    <!-- 通用单表查询结果列 -->
+    <sql id="Base_Column_List">
+        ae.id,
+        ae.hall_name as hallName
+        ae.install_date as installDate,
+        ae.update_date as updateDate,
+        ae.create_date as createDate,
+        ae.update_by as updateBy,
+        ae.create_by as createBy,
+        ae.del_flag as delFlag,
+        ae.remarks as remarks
+    </sql>
+
+    <!-- 通用多表查询结果列 -->
+    <sql id="Base_Column_List_LEFT">
+        ae.id,
+        ae.hall_name as hallName,
+        ae.install_date as installDate,
+        ae.update_date as updateDate,
+        ae.create_date as createDate,
+        ae.update_by as updateBy,
+        ae.create_by as createBy,
+        ae.del_flag as delFlag,
+        ae.remarks as remarks,
+        tp.address as address,
+        tp.position_lon as positionLon,
+        tp.position_lat as position_Lat,
+        tp.state as state,
+        tp.area_id areaId,
+        tp.org_id as orgId,
+        tp.ref_type as refType,
+        sa.full_name as areaName,
+        so.name as orgName,
+        so.area_id as areaCode,
+        sd.name as stateName
+    </sql>
+
+    <!--通用左表联结-->
+    <sql id="LEFT_JOIN_SQL">
+        LEFT JOIN target_position tp ON ae.id = tp.ref_id
+        LEFT JOIN sys_area sa ON tp.area_id = sa.id
+        LEFT JOIN sys_dict sd ON tp.state = sd.id
+        LEFT JOIN sys_organize so ON tp.org_id =so.id
+    </sql>
+
+    <!--获取省市区-->
+    <select id="listTreeArea" resultType="com.xw.project.vo.AdvEduLifeHallVo">
+        SELECT
+            id,
+            parent_id AS parentId,
+            NAME AS areaName,
+            CODE AS areaId,
+            del_flag AS delFlag
+        FROM
+            sys_area
+        WHERE
+            del_flag = '0'
+        AND id != '2'
+    </select>
+
+    <!--获取所有地址-->
+    <select id="listAllAddress" resultType="com.xw.project.vo.AdvEduLifeHallVo">
+        SELECT
+            <include refid = "Base_Column_List_LEFT" />
+        FROM
+            adv_edu_life_hall ae <include refid = "LEFT_JOIN_SQL" />
+        ORDER BY
+            ae.create_date DESC
+    </select>
+
+    <!--分页查询-->
+    <select id="selectPageVO" resultType="com.xw.project.vo.AdvEduLifeHallVo">
+        SELECT
+        <include refid="Base_Column_List_LEFT"/>
+        FROM
+        adv_edu_life_hall ae
+        <include refid="LEFT_JOIN_SQL"/>
+        <trim prefix="where" prefixOverrides="and">
+            <if test="advEduLifeHallDto.address != null and advEduLifeHallDto.address != ''">
+                tp.address like concat('%', #{advEduLifeHallDto.address},'%')
+            </if>
+            <if test="advEduLifeHallDto.hallName != null and advEduLifeHallDto.hallName != ''">
+                ae.hall_name like concat('%', #{advEduLifeHallDto.hallName},'%')
+            </if>
+            <if test="advEduLifeHallDto.stateName != null and advEduLifeHallDto.stateName != ''">
+               sd.name like concat('%', #{advEduLifeHallDto.stateName},'%')
+            </if>
+            AND ae.del_flag=0
+            ORDER BY ae.create_date desc
+        </trim>
+    </select>
+
+    <select id="selectByIdVo" resultType="com.xw.project.vo.AdvEduLifeHallVo">
+        SELECT
+            <include refid="Base_Column_List_LEFT"/>
+        FROM
+        adv_edu_life_hall ae
+            <include refid="LEFT_JOIN_SQL"/>
+        WHERE
+            ae.id =#{id}
+    </select>
+
+</mapper>

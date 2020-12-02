@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.RedCrossMemberTeenagersMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.RedCrossMemberTeenagers">
+        <id column="member_id" property="memberId" />
+    <result column="create_by" property="createBy" />
+    <result column="update_by" property="updateBy" />
+    <result column="del_flag" property="delFlag" />
+        <result column="school_name" property="schoolName" />
+        <result column="faculty" property="faculty" />
+        <result column="class_name" property="className" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        create_by,
+        update_by,
+        del_flag,
+        member_id, school_name, faculty, class_name, create_time, update_time
+    </sql>
+    <select id="listRedCrossMemberGroup" resultType="com.xw.project.vo.RedCrossMemberTeenagersVo">
+        SELECT
+            member_code AS memberCode,
+            org.full_name AS orgName,
+            member_name AS memberName,
+            school_name AS SchoolName
+        FROM
+            red_cross_member
+            INNER JOIN red_cross_member_teenagers ON red_cross_member.member_code = red_cross_member_teenagers.member_id
+            LEFT JOIN sys_organize org ON red_cross_member.org_id = org.id
+        <where>
+            red_cross_member.del_flag = '0'
+            AND red_cross_member.member_type = '2'
+            AND red_cross_member.apply_status = '01'
+            <if test="redCrossMemberDto.memberName != null and redCrossMemberDto.memberName != ''">
+                AND INSTR(red_cross_member.member_name,#{redCrossMemberDto.memberName})
+            </if>
+            <if test="redCrossMemberDto.orgId !=null and redCrossMemberDto.orgId !='' ">
+                AND red_cross_member.org_id = #{redCrossMemberDto.orgId}
+            </if>
+        </where>
+        ORDER BY
+        red_cross_member.update_date DESC
+    </select>
+
+    <select id="getCrossMemberTeenagers" resultType="com.xw.project.vo.RedCrossMemberTeenagersVo">
+        SELECT
+            a.id AS id,
+            org_id,
+            member_name,
+            member_code,
+            member_type,
+            school_name,
+            faculty,
+            class_name
+        FROM
+            red_cross_member a,
+            red_cross_member_teenagers b
+        WHERE
+            a.member_code = b.member_id
+            AND a.del_flag = '0'
+            AND a.member_type = '2'
+            AND a.member_code = #{memberCode}
+    </select>
+
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.TargetPositionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.TargetPosition">
+        <result column="id" property="id" />
+        <result column="remarks" property="remarks" />
+        <result column="update_date" property="updateDate" />
+        <result column="create_date" property="createDate" />
+        <result column="update_by" property="updateBy" />
+        <result column="create_by" property="createBy" />
+        <result column="del_flag" property="delFlag" />
+        <result column="ref_id" property="refId" />
+        <result column="ref_type" property="refType" />
+        <result column="org_id" property="orgId" />
+        <result column="area_id" property="areaId" />
+        <result column="address" property="address" />
+        <result column="position_lon" property="positionLon" />
+        <result column="position_lat" property="positionLat" />
+        <result column="state" property="state" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        remarks,
+        update_date,
+        create_date,
+        update_by,
+        create_by,
+        del_flag,
+        ref_id, ref_type, org_id, area_id, address, position_lon, position_lat, state
+    </sql>
+
+    <!-- 根据refId更新 -->
+    <update id="updateByRefId">
+        update target_position
+        <set>
+            <if test="address != null and address!=''" >
+                address=#{address},
+            </if>
+            <if test="positionLon != null and positionLon!=''" >
+                position_lon=#{positionLon},
+            </if>
+            <if test="positionLat != null and positionLat!=''" >
+                position_lat=#{positionLat},
+            </if>
+            <if test="state != null and state!=''" >
+                state=#{state},
+            </if>
+        </set>
+        where ref_id=#{refId}
+    </update>
+
+    <!--根据refId删除-->
+    <delete id="deleteByRefId">
+        UPDATE target_position SET del_flag='1' WHERE ref_id=#{refId} AND del_flag='0'
+    </delete>
+
+</mapper>

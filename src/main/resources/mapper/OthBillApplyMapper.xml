@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.OthBillApplyMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.OthBillApply">
+        <id column="apply_id" property="applyId"/>
+        <result column="donor_type" property="donorType"/>
+        <result column="donation_channel" property="donationChannel"/>
+        <result column="donation_date" property="donationDate"/>
+        <result column="donation_evidence" property="donationEvidence"/>
+        <result column="donation_bill_title" property="donationBillTitle"/>
+        <result column="donation_project" property="donationProject"/>
+        <result column="donation_amount" property="donationAmount"/>
+        <result column="apply_time" property="applyTime"/>
+        <result column="phone_number" property="phoneNumber"/>
+        <result column="remarks" property="remarks"/>
+        <result column="id_card" property="idCard"/>
+        <result column="email" property="email"/>
+    </resultMap>
+
+    <select id="getListBillApply" parameterType="string" resultType="com.xw.project.vo.OthBillApplyVo">
+        SELECT
+        a.*,
+        DATE_FORMAT(
+        a.apply_time,
+        '%Y-%m-%d %H:%i:%s'
+        ) AS registerTime
+        FROM
+        oth_bill_apply a
+        WHERE
+        1=1
+        <if test="startDate != null and startDate !=''">
+            and Date (a.apply_time) &gt;=#{startDate}
+        </if>
+        <if test="endDate != null and endDate !=''">
+            and Date (a.apply_time) &lt;= #{endDate}
+        </if>
+        <if test="othBillApplySearchVo.phoneMumber != null and othBillApplySearchVo.phoneMumber !=''">
+            and a.phone_number like CONCAT('%','${othBillApplySearchVo.phoneMumber}','%' )
+        </if>
+        <if test="othBillApplySearchVo.donationEvidence != null and othBillApplySearchVo.donationEvidence !=''">
+            and a.donation_evidence like CONCAT('%','${othBillApplySearchVo.donationEvidence}','%' )
+        </if>
+        <if test="othBillApplySearchVo.donationBillTitle != null and othBillApplySearchVo.donationBillTitle !=''">
+            and a.donation_bill_title like CONCAT('%','${othBillApplySearchVo.donationBillTitle}','%' )
+        </if>
+        ORDER BY a.apply_time desc
+    </select>
+
+    <select id="getAllBillApplyByDate" parameterType="string" resultType="map">
+        SELECT
+            CAST(a.donation_amount AS char) AS donationAmount,
+            a.donation_bill_title           AS donationBillTitle,
+            a.donation_date                 AS donationDate,
+            a.donation_evidence             AS donationEvidence,
+            a.donation_project              AS donationProject,
+            a.phone_number                  AS phoneNumber,
+            a.remarks,
+            a.email,
+            a.id_card                       AS idCard,
+            a.donation_channel              AS donationChannelName,
+            a.donor_type                    AS donorTypeName,
+            DATE_FORMAT(
+                    a.apply_time,
+                    '%Y-%m-%d %H:%i:%s'
+                )                           AS registerTime
+        FROM
+            oth_bill_apply a
+        WHERE
+            Date (apply_time) &gt;= #{startDate}
+            AND Date (apply_time) &lt;= #{endDate}
+        ORDER BY a.apply_time ASC
+    </select>
+</mapper>

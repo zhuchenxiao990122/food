@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.DisDonationIntentionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.DisDonationIntention">
+        <id column="id" property="id"/>
+        <result column="intention_code" property="intentionCode"/>
+        <result column="donor" property="donor"/>
+        <result column="nation" property="nation"/>
+        <result column="cert_type" property="certType"/>
+        <result column="cert_code" property="certCode"/>
+        <result column="donation_type" property="donationType"/>
+        <result column="area" property="area"/>
+        <result column="orient" property="orient"/>
+        <result column="total" property="total"/>
+        <result column="link_person" property="linkPerson"/>
+        <result column="phone" property="phone"/>
+        <result column="donation_project" property="donationProject"/>
+        <result column="donation_date" property="donationDate"/>
+        <result column="intention" property="intention"/>
+        <result column="apply_status" property="applyStatus"/>
+        <result column="remarks" property="remarks"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_date" property="createDate"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_date" property="updateDate"/>
+    </resultMap>
+    <select id="selectByreSourceIds" parameterType="arraylist" resultType="com.xw.project.vo.DonationIntentionVo">
+        SELECT
+        a.id,
+        a.donor,
+        a.cert_code,
+        a.donation_date,
+        a.intention,
+        a.link_person,
+        a.orient,
+        a.phone,
+        a.remarks,
+        a.total,
+        a.donation_type,
+        a.apply_status,
+        a.area,
+        IF (a.orient = '0', '否', '是') AS orient_name,
+        b.`name` AS nation,
+        c.`name` AS cert_type,
+        d.`name` AS donation_type_name,
+        e.`name` AS area_name,
+        f.`name` AS apply_status_name
+        FROM
+        oth_donation_intention a
+        LEFT JOIN sys_dict b ON a.nation = b.id
+        LEFT JOIN sys_dict c ON a.cert_type = c.id
+        LEFT JOIN sys_dict d ON a.donation_type = d.id
+        LEFT JOIN sys_dict e ON a.area = e.id
+        LEFT JOIN sys_dict f ON f.type = 'apply_status'
+        AND f.`value` = a.apply_status
+        WHERE a.del_flag = '0' and a.id in
+        <foreach collection="resourceIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+    <select id="selectIntentionList" resultType="map">
+        SELECT
+            a.id AS intentionId,
+            a.donor,
+            cast(a.donation_date as char) AS donationDate,
+            a.link_person                 AS linkPerson,
+            a.phone,
+            a.total
+        FROM
+            oth_donation_intention a
+        WHERE a.del_flag = '0'
+          and a.apply_status = '2'
+    </select>
+
+
+    <select id="selectPageByCondition" resultType="com.xw.project.vo.DisDonationIntentionVo">
+      SELECT
+	    a.*, b.`name` AS anonymousName,
+	    c.`name` AS regionName,
+	    d.`name` AS logisticsModeName,
+	    e.`name` AS originName
+      FROM
+	   dis_donation_intention a
+      LEFT JOIN sys_dict b ON a.anonymous = b.id
+      LEFT JOIN sys_dict c ON a.region = c.id
+      LEFT JOIN sys_dict d ON a.logistics_mode = d.id
+      LEFT JOIN sys_dict e ON a.origin = e.id
+    WHERE
+	a.del_flag = '0'
+    </select>
+</mapper>

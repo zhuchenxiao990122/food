@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.DisRescueRequestMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.DisRescueRequest">
+        <result column="id" property="id"/>
+        <result column="update_date" property="updateDate"/>
+        <result column="create_date" property="createDate"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="create_by" property="createBy"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="material_name" property="materialName"/>
+        <result column="model" property="model"/>
+        <result column="unit" property="unit"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="amount" property="amount"/>
+        <result column="benefitNumber" property="benefitNumber"/>
+        <result column="total" property="total"/>
+        <result column="remarks" property="remarks"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        update_date,
+        create_date,
+        update_by,
+        create_by,
+        del_flag,
+        category_id, material_name, model, unit, unit_price, amount, benefitNumber, total, remarks
+    </sql>
+    <insert id="addDisRescueRequest">
+        INSERT INTO dis_rescue_request ( id, publish_id,apply_number, category_id, material_name, model, unit, unit_price, amount, total, benefit_number )
+        VALUES
+        <foreach collection="disRescueRequests" item="disRescueRequest" index="index" separator=",">
+            (#{disRescueRequest.id},#{disRescueRequest.publishId},#{disRescueRequest.applyNumber},#{disRescueRequest.categoryId},#{disRescueRequest.materialName},#{disRescueRequest.model},#{disRescueRequest.unit},#{disRescueRequest.unitPrice},#{disRescueRequest.amount},#{disRescueRequest.total},#{disRescueRequest.benefitNumber})
+        </foreach>
+
+    </insert>
+
+    <delete id="deleteDisRescueRequest" parameterType="string">
+       DELETE
+        FROM
+            dis_rescue_request
+        WHERE
+            dis_rescue_request.publish_id = #{id}
+    </delete>
+
+    <select id="search" resultType="com.xw.project.vo.DisRescueRequestVo">
+        SELECT
+        f.*,
+        b.*
+        FROM
+        (
+        SELECT
+        publish_id,
+        apply_number,
+        SUM( total ) AS rescueTotal,
+        sys_dict.`name` AS state
+        FROM
+        dis_rescue_request
+        LEFT JOIN sys_dict ON sys_dict.id = state
+        WHERE dis_rescue_request.del_flag = '0'
+        GROUP BY
+        apply_number,
+        publish_id
+        ORDER BY
+        dis_rescue_request.create_date DESC
+        ) b
+        LEFT JOIN (
+        SELECT
+        a.id AS id,
+        a.publish_code AS publishCode,
+        a.publish_org AS publishOrg,
+        a.receive_org_id AS receiveOrgId,
+        c.full_name AS publishName,
+        e.full_name AS receiveName,
+        a.disaster_type AS disasterType,
+        d.`name` AS disasterName
+        FROM
+        dis_disaster_publish a
+        LEFT JOIN sys_organize c ON c.id = a.publish_org
+        LEFT JOIN sys_organize e ON e.id = a.receive_org_id
+        LEFT JOIN sys_dict d ON a.disaster_type = d.id
+        ) f ON f.id = b.publish_id
+        <where>
+            <if test="disRescueRequestDto.publishCode != null and disRescueRequestDto.publishCode != ''">
+                AND INSTR(f.publishCode,#{disRescueRequestDto.publishCode})
+            </if>
+            <if test="disRescueRequestDto.receiveOrgId != null and disRescueRequestDto.receiveOrgId != ''">
+                AND f.receiveOrgId =#{disRescueRequestDto.receiveOrgId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectPublishCode" resultType="java.lang.String">
+        SELECT
+            dis_disaster_publish.publish_code
+        FROM
+            dis_disaster_publish
+        WHERE
+            del_flag = '0' AND publish_org = #{publishOrg}
+    </select>
+
+    <select id="selectMaxApplyNumber" resultType="java.lang.String">
+        SELECT
+        MAX(apply_number) publishId
+        FROM
+        `dis_rescue_request`
+        Where publish_id = #{publishId}
+
+    </select>
+
+</mapper>

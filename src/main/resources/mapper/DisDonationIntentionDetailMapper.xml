@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.DisDonationIntentionDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.DisDonationIntentionDetail">
+        <id column="id" property="id"/>
+        <result column="intention_id" property="intentionId"/>
+        <result column="material_name" property="materialName"/>
+        <result column="model" property="model"/>
+        <result column="standard" property="standard"/>
+        <result column="unit" property="unit"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="amount" property="amount"/>
+        <result column="total" property="total"/>
+        <result column="intention" property="intention"/>
+        <result column="remarks" property="remarks"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_date" property="createDate"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_date" property="updateDate"/>
+    </resultMap>
+    <select id="getIntentionDetailList" resultType="com.xw.project.vo.DonationIntentionDetailVo" parameterType="string">
+        SELECT
+            a.id,
+            a.intention_id,
+            a.material_name,
+            a.model,
+            a.unit,
+            a.unit_price,
+            a.amount,
+            a.total,
+            a.intention
+        FROM
+            oth_donation_intention_detail a
+        WHERE a.del_flag = '0'
+          and a.intention_id = #{intentionId}
+    </select>
+    <delete id="deleteByIntentionId" parameterType="string">
+        DELETE
+        FROM
+        dis_donation_intention_detail
+         WHERE intention_id = #{intentionId}
+</delete>
+</mapper>

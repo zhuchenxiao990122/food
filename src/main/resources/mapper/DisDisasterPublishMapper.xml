@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.DisDisasterPublishMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.DisDisasterPublish">
+    <result column="id" property="id" />
+    <result column="update_date" property="updateDate" />
+    <result column="create_date" property="createDate" />
+    <result column="update_by" property="updateBy" />
+    <result column="create_by" property="createBy" />
+    <result column="del_flag" property="delFlag" />
+        <result column="report_org" property="reportOrg" />
+        <result column="report_code" property="reportCode" />
+        <result column="disaster_type" property="disasterType" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="area_prefectural" property="areaPrefectural" />
+        <result column="area_county" property="areaCounty" />
+        <result column="area_countryside" property="areaCountryside" />
+        <result column="area_village" property="areaVillage" />
+        <result column="disaster_population" property="disasterPopulation" />
+        <result column="death_population" property="deathPopulation" />
+        <result column="missing_population" property="missingPopulation" />
+        <result column="injured_population" property="injuredPopulation" />
+        <result column="transfer_population" property="transferPopulation" />
+        <result column="relieve_population" property="relievePopulation" />
+        <result column="housing_collapse" property="housingCollapse" />
+        <result column="housing_damage" property="housingDamage" />
+        <result column="farmland_damage" property="farmlandDamage" />
+        <result column="crops_damage" property="cropsDamage" />
+        <result column="direct_loss" property="directLoss" />
+        <result column="Indirect_loss" property="IndirectLoss" />
+        <result column="disaster_describe" property="disasterDescribe" />
+        <result column="rescue_action" property="rescueAction" />
+        <result column="media_report" property="mediaReport" />
+        <result column="remarks" property="remarks" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        update_date,
+        create_date,
+        update_by,
+        create_by,
+        del_flag,
+        report_org, report_code, disaster_type, start_time, end_time, area_prefectural, area_county, area_countryside, area_village, disaster_population, death_population, missing_population, injured_population, transfer_population, relieve_population,
+housing_collapse, housing_damage, farmland_damage, crops_damage, direct_loss,
+Indirect_loss, disaster_describe, rescue_action, media_report, remarks
+    </sql>
+
+
+    <select id="search"  resultType="com.xw.project.vo.DisPublishVo">
+        SELECT
+        a.id AS id,
+        a.publish_code AS publishCode,
+        c.full_name AS publishName,
+        e.full_name  AS receiveName,
+        d.`name` AS disasterName,
+        a.start_time AS startTime ,
+        a.end_time AS endTime,
+        b.total AS rescueTotal
+        FROM
+        dis_disaster_publish a
+        LEFT JOIN ( SELECT publish_id, SUM( total ) total FROM dis_rescue_request GROUP BY publish_id ) b ON b.publish_id = a.id
+        LEFT JOIN sys_organize c ON c.id = a.publish_org
+        LEFT JOIN sys_organize e ON e.id = a.receive_org_id
+        LEFT JOIN sys_dict d ON a.disaster_type = d.id
+        <where>
+            a.del_flag = #{disPublishDto.isDel}
+                <if test="disPublishDto.disasterType != null and disPublishDto.disasterType != ''">
+                    AND a.disaster_type = #{disPublishDto.disasterType}
+                </if>
+                <if test="disPublishDto.publishCode != null and disPublishDto.publishCode != ''">
+                    AND INSTR(a.publish_code,#{disPublishDto.publishCode})>0
+                </if>
+                <if test="disPublishDto.receiveOrgId != null and disPublishDto.receiveOrgId != ''">
+                    AND a.receive_org_id =#{disPublishDto.receiveOrgId}
+                </if>
+        </where>
+        ORDER BY
+            start_time DESC,
+            end_time DESC,
+            a.update_date DESC
+    </select>
+
+</mapper>

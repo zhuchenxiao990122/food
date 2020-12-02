@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.OrganizeManageMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.system.entity.Area">
+        <id column="id" property="id"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="parent_ids" property="parentIds"/>
+        <result column="name" property="name"/>
+        <result column="full_name" property="fullName"/>
+        <result column="sort" property="sort"/>
+        <result column="code" property="code"/>
+        <result column="no" property="no"/>
+        <result column="type" property="type"/>
+        <result column="remarks" property="remarks"/>
+        <result column="update_date" property="updateDate"/>
+        <result column="create_date" property="createDate"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="create_by" property="createBy"/>
+        <result column="del_flag" property="delFlag"/>
+    </resultMap>
+    <select id="selectAllTrees" resultType="com.xw.project.entity.TreeNode">
+        SELECT
+            id,
+            parent_id AS parentId,
+            full_name AS label,
+            orgcoding
+            AS
+            value
+        FROM
+            sys_organize
+        where org_type='1'
+        ORDER BY area_id asc
+    </select>
+
+    <select id="listOrgUsers" resultType="com.xw.project.vo.OrganizeInternalVo"   parameterType="string">
+        SELECT
+        user_id AS userId,
+        user_name AS  userName,
+        office_phone AS officePhone,
+        mobil_phone AS mobilPhone,
+        email
+    FROM
+        sys_user_organize a
+        LEFT JOIN sys_user b ON a.user_id = b.id
+    WHERE
+        b.del_flag = '0' AND a.organize_id = #{orgId}
+    </select>
+</mapper>

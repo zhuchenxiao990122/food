@@ -1,0 +1,24 @@
+package ${package.Service};
+
+import ${package.Mapper}.${table.mapperName};
+import ${package.Service}.${table.serviceName};
+import ${package.Entity}.${entity};
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.xw.project.dto.${entity}Dto;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+  import ${superServiceClassPackage};
+
+  public interface  ${table.serviceName} {
+
+  IPage< ${entity}> page(${entity}Dto ${table.entityPath}Dto);
+
+  void add(${entity} ${table.entityPath});
+
+  void update(${entity} ${table.entityPath});
+
+  void delete(String id);
+
+}

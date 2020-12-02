@@ -1,0 +1,10 @@
+package com.xw.project.vo;
+
+import com.xw.project.util.PageHelper;
+/**
+* @author ${author}
+* @since ${date}
+*/
+public class ${entity}Vo extends PageHelper {
+
+}

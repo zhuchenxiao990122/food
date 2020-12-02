@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.RedCrossMemberMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.RedCrossMember">
+    <result column="id" property="id" />
+    <result column="create_by" property="createBy" />
+    <result column="create_date" property="createDate" />
+    <result column="update_by" property="updateBy" />
+    <result column="update_date" property="updateDate" />
+    <result column="del_flag" property="delFlag" />
+        <result column="org_id" property="orgId" />
+        <result column="member_type" property="memberType" />
+        <result column="member_name" property="memberName" />
+        <result column="member_code" property="memberCode" />
+        <result column="apply_date" property="applyDate" />
+        <result column="join_date" property="joinDate" />
+        <result column="apply_status" property="applyStatus" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        create_by,
+        create_date,
+        update_by,
+        update_date,
+        del_flag,
+        org_id, member_type, member_name, member_code, apply_date, join_date, apply_status
+    </sql>
+
+</mapper>

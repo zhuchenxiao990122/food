@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.OrgMemberMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.OrgMember">
+    <result column="id" property="id" />
+    <result column="remarks" property="remarks" />
+    <result column="create_by" property="createBy" />
+    <result column="create_date" property="createDate" />
+    <result column="update_by" property="updateBy" />
+    <result column="update_date" property="updateDate" />
+    <result column="del_flag" property="delFlag" />
+        <result column="org_id" property="orgId" />
+        <result column="post" property="post" />
+        <result column="member_name" property="memberName" />
+        <result column="office_phone" property="officePhone" />
+        <result column="mobil_phone" property="mobilPhone" />
+        <result column="email" property="email" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        remarks,
+        create_by,
+        create_date,
+        update_by,
+        update_date,
+        del_flag,
+        org_id, post, member_name, office_phone, mobil_phone, email
+    </sql>
+
+    <select id="selectPageVoInIds" resultType="com.xw.project.vo.RedCrossMemberAdultVo"></select>
+
+
+
+    <select id="listOrganizeMember" resultType="com.xw.project.vo.OrganizeInternalVo">
+           SELECT
+                a.org_id AS orgId,
+                a.member_name AS memberName,
+                c.full_name AS fullName,
+                a.mobil_phone AS mobilPhone,
+                a.office_phone AS officePhone,
+                a.email,
+                a.post,
+                a.id AS id
+            FROM
+                org_member a
+                LEFT JOIN sys_organize c ON a.org_id = c.id
+            WHERE
+                a.del_flag = '0'
+                AND a.org_id = #{orgId}
+    </select>
+    <select id="internalMemberCount" resultType="com.xw.project.vo.OrganizeInternalVo">
+        SELECT
+        b.full_name AS orgName,
+        a.org_id AS orgId,
+        count(member_name) AS childCount
+        FROM org_member a
+         LEFT JOIN sys_organize b ON a.org_id = b.id
+         WHERE
+        b.parent_id = #{parentId} AND  b.org_type = #{orgType} AND  b.del_flag = '0' And a.del_flag = '0'
+        GROUP BY
+        a.org_id
+        ORDER BY
+        a.org_id
+
+    </select>
+
+    <!--批量添加-->
+    <insert id="addOrgMembers">
+        INSERT INTO org_member ( id,org_id, post, member_name, office_phone, mobil_phone, email, del_flag,create_date,update_date)
+        VALUES
+        <foreach collection="orgMembers" item="orgMember" index="index" separator=",">
+            (#{orgMember.id},#{orgMember.orgId},#{orgMember.post},#{orgMember.memberName},#{orgMember.officePhone},#{orgMember.mobilPhone},#{orgMember.email},#{orgMember.delFlag}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        </foreach>
+    </insert>
+
+
+
+
+    <delete id="deleteOrgMembers" >
+          DELETE
+        FROM
+            org_member
+        WHERE
+             org_member.org_id = #{orgId}
+    </delete>
+
+</mapper>

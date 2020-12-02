@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.SysExcelDefMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.SysExcelDef">
+        <id column="file_template" property="fileTemplate"/>
+        <result column="field_type" property="fieldType"/>
+        <result column="field_name" property="fieldName"/>
+        <result column="row" property="row"/>
+        <result column="col" property="col"/>
+    </resultMap>
+
+    <select id="selectByFactorList" parameterType="string" resultType="map">
+        SELECT
+            field_name        AS fieldName,
+            CAST(row AS CHAR) AS row,
+            CAST(col AS CHAR) AS col
+        FROM
+            sys_excel_def
+        WHERE
+            file_template = #{fileTemplate}
+          AND field_type = #{fieldType}
+    </select>
+</mapper>

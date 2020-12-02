@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.DisRescueTeamMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.DisRescueTeam">
+    <result column="id" property="id" />
+    <result column="update_date" property="updateDate" />
+    <result column="create_date" property="createDate" />
+    <result column="update_by" property="updateBy" />
+    <result column="create_by" property="createBy" />
+    <result column="del_flag" property="delFlag" />
+        <result column="org_id" property="orgId" />
+        <result column="team_type" property="teamType" />
+        <result column="team_name" property="teamName" />
+        <result column="member_total" property="memberTotal" />
+        <result column="establish_date" property="establishDate" />
+        <result column="remarks" property="remarks" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,
+        update_date,
+        create_date,
+        update_by,
+        create_by,
+        del_flag,
+        org_id, team_type, team_name, member_total, establish_date, remarks
+    </sql>
+
+    <!-- 获取所有队伍的类型 -->
+    <select id="listTeamType" resultType="com.xw.project.entity.DisRescueTeamType">
+        select id,value,name,type,description
+        from sys_dict
+        where type = "team_type"
+    </select>
+
+<!--    通过组织查询队伍时，先查看这个队伍的parentID，0 表示省级红十字会，1 表示市级红十字会， 其余为地方红十字-->
+    <select id="getParentId" resultType="String">
+        select parent_id
+        from sys_organize
+        where id = #{orgId}
+    </select>
+<!--    通过orgID, 队伍类型，队伍名称，成立时间等条件搜索队伍-->
+    <select id="listTeam" resultType="com.xw.project.vo.DisRescueTeamVo">
+        SELECT
+        a.id AS id,
+        a.org_id as orgId,
+        a.team_type as teamType,
+        b. NAME AS orgName,
+        c. NAME AS teamTypeName,
+        a.team_name AS teamName,
+        a.member_total AS memberTotal,
+        a.establish_date AS establishDate,
+        a.remarks AS remarks
+        From dis_rescue_team a
+        Left join sys_organize  b on (a.org_id=b.id )
+        left join sys_dict c on (a.team_type=c.value and c.type="team_type")
+        <where>
+            <if test="parentId != '' and parentId != null">
+                and a.org_id in (select id from sys_organize where parent_id = #{parentId})
+            </if>
+            <if test="orgId != '' and orgId != null">
+                and a.org_id = #{orgId}
+            </if>
+            <if test="teamType != '' and teamType != null">
+                and a.team_type = #{teamType}
+            </if>
+            <if test="teamName != '' and teamName != null">
+                and a.team_name like concat('%',#{teamName},'%')
+            </if>
+            <if test="establishDate != '' and establishDate != null">
+                and a.establish_date &gt;= #{establishDate[0]}
+                and a.establish_date &lt;= #{establishDate[1]}
+            </if>
+            <if test="true">
+                and a.del_flag = 0
+            </if>
+        </where>
+        ORDER BY a.create_date DESC
+    </select>
+
+    <!-- 删除队伍：将删除标志置为 1 -->
+    <update id="deleteTeamById">
+        update dis_rescue_team  set del_flag = 1 where id = #{id}
+    </update>
+</mapper>

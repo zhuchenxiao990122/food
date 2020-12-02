@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.RtmAedMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.xw.project.entity.RtmAed">
+        <result column="id" property="id"/>
+        <result column="install_date" property="installDate"/>
+        <result column="model" property="model"/>
+        <result column="update_date" property="updateDate"/>
+        <result column="create_date" property="createDate"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="create_by" property="createBy"/>
+        <result column="del_flag" property="delFlag"/>
+    </resultMap>
+
+    <!-- 通用单表查询结果列 -->
+    <sql id="Base_Column_List">
+        ra.id,
+        ra.install_date as installDate,
+        ra.model as model,
+        ra.update_date as updateDate,
+        ra.create_date as createDate,
+        ra.update_by as updateBy,
+        ra.create_by as createBy,
+        ra.del_flag as delFlag,
+        ra.remarks as remarks
+    </sql>
+
+    <!-- 通用多表查询结果列 -->
+    <sql id="Base_Column_List_Left">
+        ra.id,
+        ra.install_date as installDate,
+        ra.model as model,
+        ra.update_date as updateDate,
+        ra.create_date as createDate,
+        ra.update_by as updateBy,
+        ra.create_by as createBy,
+        ra.del_flag as delFlag,
+        ra.remarks as remarks,
+        tp.address as address,
+        tp.position_lon as positionLon,
+        tp.position_lat as position_Lat,
+        tp.state as state,
+        tp.area_id areaId,
+        tp.org_id as orgId,
+        tp.ref_type as refType,
+        sa.full_name as areaName,
+        so.name as orgName,
+        so.area_id as areaCode,
+        sd.name as stateName
+    </sql>
+
+    <!--通用左表联结-->
+    <sql id="LEFT_JOIN_SQL">
+        LEFT JOIN target_position tp ON ra.id = tp.ref_id
+        LEFT JOIN sys_area sa ON tp.area_id = sa.id
+        LEFT JOIN sys_dict sd ON tp.state = sd.id
+        LEFT JOIN sys_organize so ON tp.org_id =so.id
+    </sql>
+
+    <!--获取省市区-->
+    <select id="listTreeArea" resultType="com.xw.project.vo.RtmAedVo">
+        SELECT id,
+            parent_id as parentId,
+            name as areaName,
+            code as areaId,
+            del_flag as delFlag
+        FROM
+            sys_area
+        WHERE
+            del_flag='0' AND id != '2'
+    </select>
+
+    <!--获取所有地址-->
+    <select id="listAllAddress" resultType="com.xw.project.vo.RtmAedVo">
+        SELECT
+            <include refid="Base_Column_List_Left"/>
+        FROM
+            rtm_aed ra <include refid="LEFT_JOIN_SQL"/>
+        ORDER BY
+            ra.create_date DESC
+    </select>
+
+    <!--分页查询-->
+    <select id="selectPageVO" resultType="com.xw.project.vo.RtmAedVo">
+        SELECT
+            <include refid="Base_Column_List_Left"/>
+        FROM
+            rtm_aed ra
+            <include refid="LEFT_JOIN_SQL"/>
+        <trim prefix="where" prefixOverrides="and">
+            <if test="rtmAedDto.address != null and rtmAedDto.address != ''">
+                tp.address like concat('%', #{rtmAedDto.address},'%')
+            </if>
+            <if test="rtmAedDto.model != null and rtmAedDto.model != ''">
+                ra.model like concat('%', #{rtmAedDto.model},'%')
+            </if>
+            <if test="rtmAedDto.stateName != null and rtmAedDto.stateName != ''">
+                sd.name like concat('%', #{rtmAedDto.stateName},'%')
+            </if>
+            AND ra.del_flag=0
+            ORDER BY ra.create_date desc
+        </trim>
+    </select>
+
+    <select id="selectByIdVo" resultType="com.xw.project.vo.RtmAedVo">
+        SELECT
+            <include refid="Base_Column_List_Left"/>
+        FROM
+            rtm_aed ra
+            <include refid="LEFT_JOIN_SQL"/>
+        WHERE
+            ra.id =#{id}
+    </select>
+
+</mapper>

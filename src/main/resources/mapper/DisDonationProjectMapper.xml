@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xw.project.mapper.DisDonationProjectMapper">
+
+    <select id="pagePublish" resultType="com.xw.project.vo.DisDonationProjectVo">
+    SELECT
+    a.*, b.`name` AS stateName
+    FROM
+    dis_donation_project a
+    LEFT JOIN sys_dict b ON a.state = b.id
+    WHERE
+    a.del_flag = '0'
+    order by a.update_date DESC
+    </select>
+
+    <select id="pageApply" resultType="com.xw.project.vo.DisDonationProjectVo">
+        SELECT
+        a.*, b.`name` AS stateName
+        FROM
+        dis_donation_project a
+        LEFT JOIN sys_dict b ON a.state = b.id
+        WHERE
+        a.del_flag = '0'
+        <if test="disDonationProjectDto.userId != null and disDonationProjectDto.userId !=''">
+            AND a.apply_user = #{disDonationProjectDto.userId}
+        </if>
+        <if test="disDonationProjectDto.code != null and disDonationProjectDto.code !=''">
+            AND a.code like CONCAT('%','${disDonationProjectDto.code}','%' )
+        </if>
+        <if test="disDonationProjectDto.name != null and disDonationProjectDto.name !=''">
+            AND a.name like CONCAT('%','${disDonationProjectDto.name}','%' )
+        </if>
+        <if test="disDonationProjectDto.applyStartTime != null and disDonationProjectDto.applyStartTime !=''">
+            AND Date (a.apply_time) &gt;= #{disDonationProjectDto.applyStartTime}
+        </if>
+        <if test="disDonationProjectDto.applyEndTime != null and disDonationProjectDto.applyEndTime !=''">
+            AND Date (a.apply_time) &lt;= #{disDonationProjectDto.applyEndTime}
+        </if>
+        order by a.update_date DESC
+    </select>
+
+    <select id="selectListByMap" parameterType="map" resultType="map">
+        SELECT
+        a.`name`,
+        a.id AS projectId
+        FROM
+        dis_donation_project a
+        WHERE
+        a.del_flag = '0'
+        <if test="map.orgId != null and map.orgId !=''">
+            AND a.org_id = #{map.orgId}
+        </if>
+        <if test="map.state != null and map.state !=''">
+            AND a.state=#{map.state}
+        </if>
+        <if test="map.type != null and map.type !=''">
+            AND a.type !=#{map.type}
+        </if>
+        order by a.update_date DESC
+    </select>
+
+</mapper>
